@@ -10,8 +10,7 @@ from sklearn.linear_model import LogisticRegression
 import yaml
 config = yaml.load(open('config.yaml'), Loader=yaml.FullLoader)
 
-import hw3_main
-import hw3_challenge
+import challenge
 
 
 def get_train_test_split():
@@ -37,12 +36,12 @@ def get_train_test_split():
     for i in tqdm(IDs, desc='Loading files from disk'):
         raw_data[i] = pd.read_csv('data/files/{}.csv'.format(i))
 
-    features = Parallel(n_jobs=16)(delayed(hw3_main.generate_feature_vector)(df) for _, df in tqdm(raw_data.items(), desc='Generating feature vectors'))
+    features = Parallel(n_jobs=16)(delayed(challenge.generate_feature_vector)(df) for _, df in tqdm(raw_data.items(), desc='Generating feature vectors'))
     df_features = pd.DataFrame(features).sort_index(axis=1)
     feature_names = df_features.columns.tolist()
     X, y = df_features.values, df_labels['In-hospital_death'].values
-    X = hw3_main.impute_missing_values(X)
-    X = hw3_main.normalize_feature_matrix(X)
+    X = challenge.impute_missing_values(X)
+    X = challenge.normalize_feature_matrix(X)
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.20, stratify=y, random_state=3)
     return X_train, y_train, X_test, y_test, feature_names
 
@@ -75,12 +74,12 @@ def get_challenge_data():
     for i in tqdm(IDs, desc='Loading files from disk'):
         raw_data[i] = pd.read_csv('data/files/{}.csv'.format(i))
 
-    features = Parallel(n_jobs=16)(delayed(hw3_challenge.generate_feature_vector_challenge)(df) for _, df in tqdm(raw_data.items(), desc='Generating feature vectors'))
+    features = Parallel(n_jobs=16)(delayed(challenge.generate_feature_vector_challenge)(df) for _, df in tqdm(raw_data.items(), desc='Generating feature vectors'))
     df_features = pd.DataFrame(features)
     feature_names = df_features.columns.tolist()
     X, y = df_features.values, df_labels['30-day_mortality'].values
-    X = hw3_challenge.impute_missing_values_challenge(X)
-    X = hw3_challenge.normalize_feature_matrix_challenge(X)
+    X = challenge.impute_missing_values_challenge(X)
+    X = challenge.normalize_feature_matrix_challenge(X)
     return X[:10000], y[:10000], X[10000:], feature_names
 
 
